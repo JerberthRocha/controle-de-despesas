@@ -119,6 +119,13 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 #cloudPasswordForm .auth-floating-field>label{position:absolute;left:11px;top:50%;transform:translateY(-50%);margin:0;padding:0 4px;background:#0c192a;color:#b2c2d9;font-size:16px;line-height:1.2;pointer-events:none;transition:top .16s ease,font-size .16s ease,color .16s ease,background .16s ease}
 #cloudPasswordForm .auth-floating-field>input:focus+label,#cloudPasswordForm .auth-floating-field>input:not(:placeholder-shown)+label{top:0;font-size:12px;background:var(--panel2);color:#9cc5ff}
 #cloudPasswordForm .auth-floating-field:focus-within>input{border-color:#9cc5ff;outline:1px solid #9cc5ff}
+
+/* Teste iPhone: evita zoom automático ao focar campos do formulário, apenas em telas móveis. */
+@media (max-width:760px){
+  #editor input:not([type="checkbox"]):not([type="radio"]),
+  #editor select,
+  #editor textarea{font-size:16px}
+}
 </style><style>
 .cloud-auth{min-height:100dvh;display:grid;place-items:center;padding:22px;background:#0b1220;color:#edf4ff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.cloud-auth[hidden],#expenseApp[hidden]{display:none!important}.cloud-auth-card{width:min(100%,410px);background:#142139;border:1px solid #30415d;border-radius:18px;padding:26px;box-shadow:0 15px 50px #0005}.cloud-auth-icon{width:48px;height:48px;border-radius:13px;background:#223b60;display:grid;place-items:center;font-size:25px;color:#9bbcff;margin:0 auto 12px}.cloud-auth h1{font-size:22px;text-align:center;margin:0}.cloud-auth p{color:#b2c2d9;font-size:13px;line-height:1.5;text-align:center}.cloud-auth label{display:block;margin:15px 0 6px;font-size:13px}.cloud-auth input{box-sizing:border-box;width:100%;padding:12px;background:#0c182a;color:white;border:1px solid #405373;border-radius:10px;font-size:16px}.cloud-auth button{cursor:pointer}.cloud-primary{display:block;width:100%;background:#3275d4;color:#fff;border:0;border-radius:10px;padding:13px;margin-top:20px;font-weight:700;font-size:15px}.cloud-primary:disabled{opacity:.5}.cloud-link{display:block;background:none;border:0;color:#9cc5ff;margin:14px auto 0;font-size:13px}.cloud-auth #authMessage{color:#ffd28a;white-space:pre-wrap;overflow-wrap:anywhere}#cloudSignout{font-weight:600}
 
