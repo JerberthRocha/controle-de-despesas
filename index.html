@@ -609,4 +609,89 @@ document.addEventListener('click', function(event) {
   update();
 })();
 </script>
+<style>
+#desktopMonthIndicator{display:none}
+@media(min-width:761px){
+  #desktopMonthIndicator{position:fixed;top:16px;left:max(16px,calc((100vw - 1320px) / 4 + 11px - 80px));z-index:29;width:160px;height:80px;box-sizing:border-box;border:1px solid var(--border);border-radius:12px;background:rgba(21,28,39,.94);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease}
+  #desktopMonthIndicator.is-visible{opacity:1;visibility:visible}
+  #desktopMonthIndicator svg{color:var(--muted);flex-shrink:0}
+  #desktopMonthIndicator strong{font-size:18px;line-height:21px}
+  #desktopMonthIndicator span{font-size:14px;line-height:17px;color:var(--muted)}
+  body:has(#expenseApp[hidden]) #desktopMonthIndicator,body:has(dialog[open]) #desktopMonthIndicator{display:none}
+}
+</style>
+<script>
+(()=>{
+  const app=document.getElementById('expenseApp');
+  const label=document.getElementById('monthLabel');
+  const nav=label.closest('.monthnav');
+  const desktop=window.matchMedia('(min-width:761px)');
+  const indicator=document.createElement('div');
+  indicator.id='desktopMonthIndicator';
+  indicator.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><strong></strong><span></span>';
+  document.body.appendChild(indicator);
+  const month=indicator.querySelector('strong'),year=indicator.querySelector('span');
+  const update=()=>{
+    const parts=label.textContent.trim().match(/^(.+?)\s+de\s+(\d{4})$/i);
+    const m=parts?parts[1]:label.textContent.trim(),y=parts?parts[2]:'';
+    if(month.textContent!==m)month.textContent=m;
+    if(year.textContent!==y)year.textContent=y;
+    const visible=desktop.matches&&!app.hidden&&!document.querySelector('dialog[open],.menu-open')&&nav.getBoundingClientRect().bottom<=0&&!!m;
+    indicator.classList.toggle('is-visible',visible);
+    indicator.setAttribute('aria-hidden',String(!visible));
+  };
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update,{passive:true});
+  desktop.addEventListener('change',update);
+  new MutationObserver(update).observe(label,{childList:true,characterData:true,subtree:true});
+  new MutationObserver(update).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','hidden']});
+  new ResizeObserver(update).observe(nav);
+  update();
+})();
+</script>
+<style>
+#mobileMonthIndicator{display:none}
+@media(max-width:760px){
+  #mobileMonthIndicator{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);z-index:29;display:flex;align-items:center;gap:6px;width:max-content;max-width:calc(100% - 24px);padding:4px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(21,28,39,.94);color:var(--text);font-size:18px;font-weight:700;line-height:normal;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease}
+  #mobileMonthIndicator.is-visible{opacity:1;visibility:visible;pointer-events:auto}
+  #mobileMonthIndicator svg{color:var(--muted);flex-shrink:0}
+  body:has(#expenseApp[hidden]) #mobileMonthIndicator,body:has(dialog[open]) #mobileMonthIndicator{display:none}
+}
+</style>
+<script>
+(()=>{
+  const app=document.getElementById('expenseApp'),label=document.getElementById('monthLabel');
+  const mobile=window.matchMedia('(max-width:760px)');
+  const indicator=document.createElement('button');
+  indicator.type='button';indicator.id='mobileMonthIndicator';
+  indicator.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span></span>';
+  document.body.appendChild(indicator);
+  const text=indicator.querySelector('span');
+  let hideTimer, active=false;
+  const update=(event)=>{
+    const value=label.textContent.trim();
+    if(text.textContent!==value)text.textContent=value;
+    const eligible=mobile.matches&&!app.hidden&&!document.querySelector('dialog[open],.menu-open')&&label.getBoundingClientRect().bottom<=0&&!!value;
+    if(!eligible){clearTimeout(hideTimer);active=false;}
+    else if(!active||event?.type==='scroll'){
+      active=true;clearTimeout(hideTimer);
+      indicator.classList.add('is-visible');
+      hideTimer=setTimeout(()=>{indicator.classList.remove('is-visible');indicator.setAttribute('aria-hidden','true');indicator.tabIndex=-1;},3000);
+    }
+    const visible=eligible&&indicator.classList.contains('is-visible');
+    indicator.classList.toggle('is-visible',visible);
+    indicator.setAttribute('aria-hidden',String(!visible));
+    indicator.tabIndex=visible?0:-1;
+    indicator.setAttribute('aria-label',value+' — Voltar ao início da página');
+  };
+  indicator.addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'}));
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update,{passive:true});
+  mobile.addEventListener('change',update);
+  new MutationObserver(update).observe(label,{childList:true,characterData:true,subtree:true});
+  new MutationObserver(update).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','hidden']});
+  new ResizeObserver(update).observe(label);
+  update();
+})();
+</script>
 </body></html>
