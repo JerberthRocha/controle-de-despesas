@@ -41,6 +41,15 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
   [data-mobile-collapse="rows"].mobile-collapsed .tablewrap,
   [data-mobile-collapse="rows"].mobile-collapsed #empty{display:none!important}
 
+/* Mensagem de seção recolhida apenas no PC */
+@media(min-width:761px){
+  .grid > [data-mobile-collapse="categories"].mobile-collapsed,
+  .grid > [data-mobile-collapse="history"].mobile-collapsed{position:relative}
+  .grid > [data-mobile-collapse="categories"].mobile-collapsed::after,
+  .grid > [data-mobile-collapse="history"].mobile-collapsed::after{content:"Seção oculta. Clique no título para exibir.";display:block;text-align:center;color:var(--muted);font-size:13px;margin:12px 0}
+  .grid:has(> [data-mobile-collapse]:not(.mobile-collapsed)) > .mobile-collapsed::after{position:absolute;top:50%;left:16px;right:16px;transform:translateY(-50%);margin:0;pointer-events:none}
+}
+
 /* Sete indicadores no painel: dois anuais integrados aos cinco mensais */
 @media(min-width:901px){.layout{grid-template-columns:repeat(4,minmax(0,1fr))}.annual-total-card{grid-column:span 2}}
 @media(min-width:761px) and (max-width:900px){.annual-total-card{grid-column:span 2}}
@@ -432,6 +441,7 @@ persist();render()
     page.parentNode.insertBefore(holder,page);
     holder.append(page,outgoing);
     changeMonth(direction);
+    window.dispatchEvent(new Event('expense-month-swipe'));
     page.style.transition='none';
     page.style.transform=`translate3d(${direction*distance}px,0,0)`;
     page.style.opacity='1';
@@ -670,7 +680,7 @@ document.addEventListener('click', function(event) {
     if(text.textContent!==value)text.textContent=value;
     const eligible=mobile.matches&&!app.hidden&&!document.querySelector('dialog[open],.menu-open')&&label.getBoundingClientRect().bottom<=0&&!!value;
     if(!eligible){clearTimeout(hideTimer);active=false;}
-    else if(!active||event?.type==='scroll'){
+    else if(!active||event?.type==='scroll'||event?.type==='expense-month-swipe'){
       active=true;clearTimeout(hideTimer);
       indicator.classList.add('is-visible');
       hideTimer=setTimeout(()=>{indicator.classList.remove('is-visible');indicator.setAttribute('aria-hidden','true');indicator.tabIndex=-1;},3000);
@@ -685,6 +695,7 @@ document.addEventListener('click', function(event) {
   window.addEventListener('scroll',update,{passive:true});
   window.addEventListener('resize',update,{passive:true});
   mobile.addEventListener('change',update);
+  window.addEventListener('expense-month-swipe',update);
   new MutationObserver(update).observe(label,{childList:true,characterData:true,subtree:true});
   new MutationObserver(update).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','hidden']});
   new ResizeObserver(update).observe(label);
